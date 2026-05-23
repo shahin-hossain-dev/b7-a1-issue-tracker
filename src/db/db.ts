@@ -49,7 +49,7 @@ export async function initDb() {
     description TEXT CHECK(char_length(description) >= 20) NOT NULL,
     type issue_type NOT NULL,
     status issue_status DEFAULT 'open',
-    reporter_id INT REFERENCES users(id),
+    reporter_id INT NOT NULL REFERENCES users(id),
 
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
