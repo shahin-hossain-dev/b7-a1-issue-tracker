@@ -8,8 +8,8 @@ dotenv.config({
 
 const config = {
   connectionString: process.env.CONNECTION_STRING,
-  port: process.env.PORT || 3000,
-  jwtSecret: process.env.NODE_NNV || "development",
+  port: process.env.PORT || 5000,
+  jwtSecret: process.env.JWT_SECRET as string,
 } as const;
 
 export default config;

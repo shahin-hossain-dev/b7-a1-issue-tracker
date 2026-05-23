@@ -2,7 +2,7 @@ import { pool } from "@/config/connectDB";
 import type { TUser } from "./user.interface";
 import bcrypt from "bcryptjs";
 
-const createUserIntoDB = async (payload: TUser) => {
+const registerUserIntoDB = async (payload: TUser) => {
   const { name, email, password, role } = payload;
 
   const salt = await bcrypt.genSalt(10);
@@ -28,4 +28,4 @@ const getUserFromDB = async () => {
   return result.rows.filter((user) => delete user.password);
 };
 
-export const userServices = { createUserIntoDB, getUserFromDB };
+export const userServices = { registerUserIntoDB, getUserFromDB };

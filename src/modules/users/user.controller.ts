@@ -3,9 +3,15 @@ import { userServices } from "./user.service";
 import sendResponse from "@/utils/sendResponse";
 import status from "http-status";
 
-const createUser = async (req: Request, res: Response, next: NextFunction) => {
+const registerUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  console.log(req.headers.authorization);
+
   try {
-    const result = await userServices.createUserIntoDB(req.body);
+    const result = await userServices.registerUserIntoDB(req.body);
 
     sendResponse(res, status.CREATED, {
       success: true,
@@ -31,4 +37,4 @@ const getAllUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export const userController = { createUser, getAllUser };
+export const userController = { registerUser, getAllUser };
