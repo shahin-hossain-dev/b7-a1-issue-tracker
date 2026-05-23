@@ -23,4 +23,21 @@ const createIssue = async (req: Request, res: Response, next: NextFunction) => {
   }
 };
 
-export const issueController = { createIssue };
+const getAllIssues = async (
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const result = await issueServices.getAllIssuesFromDB();
+    sendResponse(res, status.OK, {
+      success: true,
+      message: "Issues fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const issueController = { createIssue, getAllIssues };

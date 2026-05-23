@@ -16,4 +16,25 @@ const createIssueIntoDB = async (payload: TIssue) => {
   return result.rows[0];
 };
 
-export const issueServices = { createIssueIntoDB };
+const getAllIssuesFromDB = async () => {
+  const result = await pool.query(`
+    SELECT  i.*,
+
+    json_build_object(
+        'id',u.id,
+        'name', u.name,
+        'role', u.role
+    ) AS reporter
+
+    FROM issues i
+
+    JOIN users u
+    ON i.reporter_id = u.id
+    
+    `);
+
+  const users = result.rows.filter((user) => delete user.reporter_id);
+  return users;
+};
+
+export const issueServices = { createIssueIntoDB, getAllIssuesFromDB };
