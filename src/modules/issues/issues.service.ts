@@ -87,7 +87,6 @@ const updateSingleIssueIntoDB = async (
       title = COALESCE($1, title),
       description = COALESCE($2, description),
       type = COALESCE($3::issue_type, type),
-      status = COALESCE($4::issue_status, status),
       updated_at  = NOW()
     WHERE id = $5
     RETURNING *
@@ -112,9 +111,25 @@ const updateSingleIssueIntoDB = async (
   }
 };
 
+const deleteSingleIssueFromDB = async (id: string) => {
+  const getIssue: TIssue | undefined = await getSingleIssueFromDB(id);
+
+  if (!getIssue) {
+    throw new Error("Issue not found");
+  }
+
+  const result = await pool.query(
+    `DELETE FROM issues WHERE id = $1 RETURNING *`,
+    [id],
+  );
+
+  return result.rows[0];
+};
+
 export const issueServices = {
   createIssueIntoDB,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
   updateSingleIssueIntoDB,
+  deleteSingleIssueFromDB,
 };

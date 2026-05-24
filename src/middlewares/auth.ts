@@ -34,7 +34,7 @@ const auth = (...roles: TRole[]) => {
       delete user.password;
 
       if (userData.rows.length === 0) {
-        res.status(404).json({
+        res.status(status.NOT_FOUND).json({
           success: false,
           message: "User not found!",
         });

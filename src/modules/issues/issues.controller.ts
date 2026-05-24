@@ -3,7 +3,7 @@ import { issueServices } from "./issues.service";
 import sendResponse from "@/utils/sendResponse";
 import status from "http-status";
 import type { TUser } from "../users/user.interface";
-import type { JwtPayload } from "jsonwebtoken";
+import { ForbiddenError, NotFoundError } from "@/errors";
 
 const createIssue = async (req: Request, res: Response, next: NextFunction) => {
   const body = req.body;
@@ -51,7 +51,7 @@ const getSingleIssue = async (
     const result = await issueServices.getSingleIssueFromDB(id);
 
     if (!result) {
-      throw new Error("Issue not found");
+      throw new NotFoundError("Issue not found");
     }
 
     sendResponse(res, status.OK, {
@@ -94,9 +94,33 @@ const updateSingleIssue = async (
   }
 };
 
+const deleteSingleIssue = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const { id } = req.params as { id: string };
+  const user = req.user as TUser;
+
+  if (user.role === "contributor") {
+    throw new ForbiddenError("Access denied");
+  }
+
+  try {
+    await issueServices.deleteSingleIssueFromDB(id);
+    sendResponse(res, status.OK, {
+      success: true,
+      message: "Issue deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const issueController = {
   createIssue,
   getAllIssues,
   getSingleIssue,
   updateSingleIssue,
+  deleteSingleIssue,
 };

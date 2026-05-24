@@ -3,6 +3,7 @@ import type { TLoginPayload } from "./auth.interface";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import config from "@/config/config";
+import { UnauthorizedError } from "@/errors";
 
 const loginUser = async (payload: TLoginPayload) => {
   const { email, password } = payload;
@@ -13,16 +14,16 @@ const loginUser = async (payload: TLoginPayload) => {
 
   const user = rows[0];
 
-  if (!user) throw new Error("Invalid email or password");
+  if (!user) throw new UnauthorizedError("Invalid email or password");
 
   //generate token
 
   const tokenPayload = { name: user.name, role: user.role, email: user.email };
 
-  const token = jwt.sign(tokenPayload, config.jwtSecret);
+  const token = jwt.sign(tokenPayload, config.jwtSecret, { expiresIn: "1d" });
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) throw new Error("Invalid email or password");
+  if (!isMatch) throw new UnauthorizedError("Invalid email or password");
 
   delete user.password;
 
