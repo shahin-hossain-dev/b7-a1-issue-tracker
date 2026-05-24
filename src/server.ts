@@ -1,11 +1,10 @@
-import { app } from "./app";
+import app from "./app";
 import config from "./config/config";
 import { initDb } from "./db/db";
 
 export async function main() {
-  initDb();
+  await initDb();
 
-  console.log(config.connectionString);
   app.listen(config.port, () => {
     console.log(`DevPulse server is running port on ${config.port}`);
   });

@@ -4,7 +4,7 @@ import { authRouter } from "./modules/auth/auth.routes";
 import globalErrorHandler from "./middlewares/globalErrorHandler";
 import { issueRouter } from "./modules/issues/issues.routes";
 
-export const app: Application = express();
+const app: Application = express();
 
 // middleware
 app.use(express.json());
@@ -30,3 +30,5 @@ routes.forEach((item) => app.use(item.route, item.routeFn));
 
 // global error handler
 app.use(globalErrorHandler);
+
+export default app;
