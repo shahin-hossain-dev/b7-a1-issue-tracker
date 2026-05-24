@@ -154,7 +154,7 @@ const deleteSingleIssueFromDB = async (id: string) => {
   const getIssue: TIssue | undefined = await getSingleIssueFromDB(id);
 
   if (!getIssue) {
-    throw new Error("Issue not found");
+    throw new NotFoundError("Issue not found");
   }
 
   const result = await pool.query(

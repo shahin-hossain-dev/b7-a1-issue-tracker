@@ -81,7 +81,7 @@ const updateSingleIssue = async (
     );
 
     if (!result) {
-      throw new Error("Issue not found");
+      throw new NotFoundError("Issue not found");
     }
 
     sendResponse(res, status.OK, {
