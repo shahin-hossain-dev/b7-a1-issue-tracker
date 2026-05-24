@@ -69,13 +69,13 @@ const updateSingleIssueIntoDB = async (
   //   const { title, description, type, status } = payload;
   const { id: reqUserId, role } = user;
 
-  const getIssue = await getSingleIssueFromDB(id);
+  const getIssue: TIssue | undefined = await getSingleIssueFromDB(id);
 
   if (!getIssue) {
     throw new Error("Issue not found");
   }
 
-  const reporterId = getIssue.reporter.id;
+  const reporterId = getIssue?.reporter?.id as number;
 
   const updateIssue = async (id: string, payload: Partial<TIssue>) => {
     const { title, description, type, status } = payload;
@@ -87,7 +87,8 @@ const updateSingleIssueIntoDB = async (
       title = COALESCE($1, title),
       description = COALESCE($2, description),
       type = COALESCE($3::issue_type, type),
-      status = COALESCE($4::issue_status, status)
+      status = COALESCE($4::issue_status, status),
+      updated_at  = NOW()
     WHERE id = $5
     RETURNING *
     `,
@@ -100,7 +101,11 @@ const updateSingleIssueIntoDB = async (
   if (role === USER_ROLE.maintainer) {
     return updateIssue(id, payload);
   }
-  if (role === USER_ROLE.contributor && reqUserId === reporterId) {
+  if (
+    role === USER_ROLE.contributor &&
+    reqUserId === reporterId &&
+    getIssue.status === "open"
+  ) {
     return updateIssue(id, payload);
   } else {
     throw new ForbiddenError("Access denied");
