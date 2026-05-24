@@ -1,5 +1,8 @@
 import { pool } from "@/config/connectDB";
 import type { TIssue } from "./issues.interface";
+import type { TUser } from "../users/user.interface";
+import { USER_ROLE } from "@/types";
+import { ForbiddenError } from "@/errors";
 
 const createIssueIntoDB = async (payload: TIssue) => {
   const { title, description, type, reporter_id } = payload;
@@ -37,4 +40,76 @@ const getAllIssuesFromDB = async () => {
   return users;
 };
 
-export const issueServices = { createIssueIntoDB, getAllIssuesFromDB };
+const getSingleIssueFromDB = async (id: string) => {
+  const result = await pool.query(
+    `
+    SELECT i.*,
+    json_build_object(
+        'id', u.id,
+        'name', u.name,
+        'role', u.role
+    ) AS reporter
+    FROM issues i
+    JOIN users u ON i.reporter_id = u.id
+    WHERE i.id = $1
+    `,
+    [id],
+  );
+
+  const issue = result.rows[0];
+  if (issue) delete issue.reporter_id;
+  return issue;
+};
+
+const updateSingleIssueIntoDB = async (
+  id: string,
+  payload: Partial<TIssue>,
+  user: TUser,
+) => {
+  //   const { title, description, type, status } = payload;
+  const { id: reqUserId, role } = user;
+
+  const getIssue = await getSingleIssueFromDB(id);
+
+  if (!getIssue) {
+    throw new Error("Issue not found");
+  }
+
+  const reporterId = getIssue.reporter.id;
+
+  const updateIssue = async (id: string, payload: Partial<TIssue>) => {
+    const { title, description, type, status } = payload;
+
+    const result = await pool.query(
+      `
+    UPDATE issues
+    SET
+      title = COALESCE($1, title),
+      description = COALESCE($2, description),
+      type = COALESCE($3::issue_type, type),
+      status = COALESCE($4::issue_status, status)
+    WHERE id = $5
+    RETURNING *
+    `,
+      [title ?? null, description ?? null, type ?? null, status ?? null, id],
+    );
+
+    return result.rows[0];
+  };
+
+  if (role === USER_ROLE.maintainer) {
+    return updateIssue(id, payload);
+  }
+  if (role === USER_ROLE.contributor && reqUserId === reporterId) {
+    return updateIssue(id, payload);
+  } else {
+    throw new ForbiddenError("Access denied");
+  }
+};
+
+export const issueServices = {
+  createIssueIntoDB,
+  getAllIssuesFromDB,
+  getSingleIssueFromDB,
+  updateSingleIssueIntoDB,
+};

@@ -16,8 +16,8 @@ export async function initDb() {
     password TEXT NOT NULL,
     role user_role DEFAULT 'contributor',
 
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
     )
     `;
 
@@ -48,12 +48,14 @@ export async function initDb() {
     title VARCHAR(150) NOT NULL,
     description TEXT CHECK(char_length(description) >= 20) NOT NULL,
     type issue_type NOT NULL,
-    status issue_status DEFAULT 'open',
-    reporter_id INT NOT NULL REFERENCES users(id),
+    status issue_status NOT NULL DEFAULT 'open',
+    reporter_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
 
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
+
+    
     
     `;
 
