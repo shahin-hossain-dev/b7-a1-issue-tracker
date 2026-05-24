@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+﻿import type { NextFunction, Request, Response } from "express";
 import { issueServices } from "./issues.service";
 import sendResponse from "@/utils/sendResponse";
 import status from "http-status";
@@ -33,7 +33,7 @@ const getAllIssues = async (
     const result = await issueServices.getAllIssuesFromDB();
     sendResponse(res, status.OK, {
       success: true,
-      message: "Issues fetched successfully",
+      message: "Issues retrived successfully",
       data: result,
     });
   } catch (error) {
@@ -56,7 +56,7 @@ const getSingleIssue = async (
 
     sendResponse(res, status.OK, {
       success: true,
-      message: "Issue fetched successfully",
+      message: "Issue retrived successfully",
       data: result,
     });
   } catch (error) {
